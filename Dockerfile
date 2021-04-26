@@ -1,6 +1,6 @@
 FROM debian:10 AS builder
 
-ENV HADOOP_VERSION 3.2.2
+ENV HADOOP_VERSION 3.3.0
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install security updates and build dependencies.
@@ -19,7 +19,7 @@ RUN curl --location "https://www.apache.org/dyn/mirrors/mirrors.cgi?action=downl
  && tar --extract --gzip --file "hadoop-${HADOOP_VERSION}.tar.gz" \
  && mv "hadoop-${HADOOP_VERSION}" "hadoop"
 
-FROM openjdk:8-jre
+FROM openjdk:11-jre
 
 COPY --from=builder /hadoop /opt/hadoop
 
