@@ -19,15 +19,19 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        hadoop: [2.10.1, 3.3.0] # Consider adding 3.1.4 and 3.2.2.
+
     steps:
       - uses: actions/checkout@v2
 
       - name: Run tests
         run: |
-          docker-compose --file docker-compose.test.yml build
+          docker-compose --file docker-compose.test.yml build --build-arg HADOOP_VERSION=${{ matrix.hadoop }}
           docker-compose --file docker-compose.test.yml run sut
 
-  # Push image to GitHub Packages.
+  # Push image to GitHub Container Registry.
   # See also https://docs.docker.com/docker-hub/builds/
   push:
     # Ensure test job passes before pushing image.
@@ -36,14 +40,18 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
 
+    strategy:
+      matrix:
+        hadoop: [2.10.1, 3.3.0] # Consider adding 3.1.4 and 3.2.2.
+
     steps:
       - uses: actions/checkout@v2
 
       - name: Build image
-        run: docker build --tag ${{ github.repository }} .
+        run: docker build --build-arg HADOOP_VERSION=${{ matrix.hadoop }} --tag ${{ github.repository }} .
 
       - name: Log into registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Push image
         run: |
@@ -56,5 +64,5 @@ jobs:
           # Use Docker `latest` tag convention.
           [ "$VERSION" == "main" ] && VERSION=latest
 
-          docker tag ${{ github.repository }} docker.pkg.github.com/${{ github.repository }}/hadoop:$VERSION
-          docker push docker.pkg.github.com/${{ github.repository }}/hadoop:$VERSION
+          docker tag ${{ github.repository }} ghcr.io/${{ github.repository }}:$VERSION
+          docker push ghcr.io/${{ github.repository }}:$VERSION

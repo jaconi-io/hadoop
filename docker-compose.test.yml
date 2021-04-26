@@ -1,43 +1,48 @@
 services:
   sut:
     build: .
-    entrypoint: /test.sh
+    command: /test.sh
+    environment:
+      FS_DEFAULTFS: hdfs://namenode:9000
     depends_on:
       - namenode
       - datanode1
       - datanode2
     volumes:
-      - ${PWD}/test/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
       - ${PWD}/test/test.sh:/test.sh
 
   namenode:
     build: .
-    command: namenode
+    command: hdfs namenode
+    environment:
+      FS_DEFAULTFS: hdfs://namenode:9000
     depends_on:
       - namenode-format
     volumes:
-      - ${PWD}/test/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
       - namenode:/tmp/hadoop-root/dfs/name
 
   namenode-format:
     build: .
-    command: namenode -format -nonInteractive
+    command: hdfs namenode -format -nonInteractive
+    environment:
+      FS_DEFAULTFS: hdfs://namenode:9000
     volumes:
-      - ${PWD}/test/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
       - namenode:/tmp/hadoop-root/dfs/name
 
   datanode1:
     build: .
-    command: datanode
+    command: hdfs datanode
+    environment:
+      FS_DEFAULTFS: hdfs://namenode:9000
     volumes:
-      - ${PWD}/test/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
       - datanode1:/tmp/hadoop-root/dfs/name
 
   datanode2:
     build: .
-    command: datanode
+    command: hdfs datanode
+    environment:
+      FS_DEFAULTFS: hdfs://namenode:9000
     volumes:
-      - ${PWD}/test/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
       - datanode2:/tmp/hadoop-root/dfs/name
 
 volumes:
