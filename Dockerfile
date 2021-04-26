@@ -1,6 +1,6 @@
 FROM debian:10 AS builder
 
-ENV HADOOP_VERSION 3.1.4
+ENV HADOOP_VERSION 3.2.2
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install security updates and build dependencies.
