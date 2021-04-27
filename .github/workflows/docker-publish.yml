@@ -64,5 +64,5 @@ jobs:
           # Use Docker `latest` tag convention.
           [ "$VERSION" == "main" ] && VERSION=latest
 
-          docker tag ${{ github.repository }} ghcr.io/${{ github.repository }}:$VERSION
-          docker push ghcr.io/${{ github.repository }}:$VERSION
+          docker tag ${{ github.repository }} ghcr.io/${{ github.repository }}:${{ matrix.hadoop }}-$VERSION
+          docker push ghcr.io/${{ github.repository }}:${{ matrix.hadoop }}-$VERSION
