@@ -29,6 +29,7 @@ FROM openjdk:8-jre
 
 ENV PATH /opt/hadoop/bin:${PATH}
 
+COPY entrypoint.sh /entrypoint.sh
 COPY --from=builder /dockerize /usr/local/bin/dockerize
 COPY --from=builder /hadoop /opt/hadoop
 COPY --from=builder /core-site.xml.tmpl /opt/hadoop/etc/hadoop/core-site.xml.tmpl
@@ -36,9 +37,5 @@ COPY --from=builder /hdfs-site.xml.tmpl /opt/hadoop/etc/hadoop/hdfs-site.xml.tmp
 COPY --from=builder /yarn-site.xml.tmpl /opt/hadoop/etc/hadoop/yarn-site.xml.tmpl
 COPY --from=builder /mapred-site.xml.tmpl /opt/hadoop/etc/hadoop/mapred-site.xml.tmpl
 
-ENTRYPOINT [ "dockerize", \
-  "-template", "/opt/hadoop/etc/hadoop/core-site.xml.tmpl:/opt/hadoop/etc/hadoop/core-site.xml", \
-  "-template", "/opt/hadoop/etc/hadoop/hdfs-site.xml.tmpl:/opt/hadoop/etc/hadoop/hdfs-site.xml", \
-  "-template", "/opt/hadoop/etc/hadoop/yarn-site.xml.tmpl:/opt/hadoop/etc/hadoop/yarn-site.xml", \
-  "-template", "/opt/hadoop/etc/hadoop/mapred-site.xml.tmpl:/opt/hadoop/etc/hadoop/mapred-site.xml" ]
+ENTRYPOINT [ "/entrypoint.sh" ]
 CMD [ "hdfs", "--help" ]
