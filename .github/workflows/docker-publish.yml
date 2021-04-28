@@ -31,7 +31,7 @@ jobs:
           docker-compose --file docker-compose.test.yml build --build-arg HADOOP_VERSION=${{ matrix.hadoop }}
           docker-compose --file docker-compose.test.yml run sut
 
-  # Push image to GitHub Container Registry.
+  # Push image to Docker Hub and GitHub Container Registry.
   # See also https://docs.docker.com/docker-hub/builds/
   push:
     # Ensure test job passes before pushing image.
