@@ -10,13 +10,36 @@ generate() {
 
   echo "<configuration>"
   for property in $(xmlstarlet select --template --match "/configuration/property/name" --value-of "." --output " " $1); do
-    ENV=$(echo $property | tr "a-z" "A-Z" | tr "." "_" | tr "-" "_" | tr "[" "_" | tr "]" "_" )
-    echo "{{- if .Env.$ENV }}"
-    echo "  <property>"
-    echo "    <name>$property</name>"
-    echo "    <value>{{ .Env.$ENV }}</value>"
-    echo "  </property>"
-    echo "{{- end }}"
+    ENV=$(echo $property | tr "a-z" "A-Z" | tr "." "_" | tr "-" "_" )
+
+    # Some properties contain "[port_number]" as a placeholder. We need special handling for these.
+    case "$ENV" in
+      *\[PORT_NUMBER\]*)
+        PROPERTY_PREFIX=$(echo "$property" | awk -F '\\\[port_number\\\]' '{print $1}')
+        PROPERTY_SUFFIX=$(echo "$property" | awk -F '\\\[port_number\\\]' '{print $2}')
+        ENV_PREFIX=$(echo "$ENV" | awk -F '\\\[PORT_NUMBER\\\]' '{print $1}')
+        ENV_SUFFIX=$(echo "$ENV" | awk -F '\\\[PORT_NUMBER\\\]' '{print $2}')
+        echo "{{- range \$k, \$v := .Env }}"
+        echo "  {{- if ne (replace \$k \"$ENV_PREFIX\" \"\" 1) \$k }}" # This is roughly equivalent to strings.Contains.
+        echo "  {{- if ne (replace \$k \"$ENV_SUFFIX\" \"\" 1) \$k }}" # This is roughly equivalent to strings.Contains.
+        echo "  {{- \$port := replace (replace \$k \"$ENV_PREFIX\" \"\" 1) \"$ENV_SUFFIX\" \"\" 1 }}"
+        echo "  <property>"
+        echo "    <name>$PROPERTY_PREFIX{{ \$port }}$PROPERTY_SUFFIX</name>"
+        echo "    <value>{{ \$v }}</value>"
+        echo "  </property>"
+        echo "  {{- end }}"
+        echo "  {{- end }}"
+        echo "{{- end}}"
+        ;;
+      *)
+        echo "{{- if .Env.$ENV }}"
+        echo "  <property>"
+        echo "    <name>$property</name>"
+        echo "    <value>{{ .Env.$ENV }}</value>"
+        echo "  </property>"
+        echo "{{- end }}"
+        ;;
+    esac
   done
   echo "</configuration>"
 }
