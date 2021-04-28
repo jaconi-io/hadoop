@@ -48,10 +48,10 @@ curl "https://hadoop.apache.org/docs/r${HADOOP_VERSION}/hadoop-project-dist/hado
 generate "core-default.xml" > core-site.xml.tmpl
 
 curl "https://hadoop.apache.org/docs/r${HADOOP_VERSION}/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml" --output "hdfs-default.xml"
-generate "core-default.xml" > hdfs-site.xml.tmpl
+generate "hdfs-default.xml" > hdfs-site.xml.tmpl
 
 curl "https://hadoop.apache.org/docs/r${HADOOP_VERSION}/hadoop-yarn/hadoop-yarn-common/yarn-default.xml" --output "yarn-default.xml"
-generate "core-default.xml" > yarn-site.xml.tmpl
+generate "yarn-default.xml" > yarn-site.xml.tmpl
 
 curl "https://hadoop.apache.org/docs/r${HADOOP_VERSION}/hadoop-mapreduce-client/hadoop-mapreduce-client-core/mapred-default.xml" --output "mapred-default.xml"
-generate "core-default.xml" > mapred-site.xml.tmpl
+generate "mapred-default.xml" > mapred-site.xml.tmpl
