@@ -21,7 +21,7 @@ jobs:
 
     strategy:
       matrix:
-        hadoop: [2.10.1, 3.3.0] # Consider adding 3.1.4 and 3.2.2.
+        hadoop: [2.10.1, 3.1.4, 3.2.2, 3.3.0]
 
     steps:
       - uses: actions/checkout@v2
@@ -42,7 +42,7 @@ jobs:
 
     strategy:
       matrix:
-        hadoop: [2.10.1, 3.3.0] # Consider adding 3.1.4 and 3.2.2.
+        hadoop: [2.10.1, 3.1.4, 3.2.2, 3.3.0]
 
     steps:
       - uses: actions/checkout@v2
@@ -63,22 +63,17 @@ jobs:
       - name: Determine tags
         id: tags
         run: |
-          # Strip git ref prefix from version.
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Get date in YYYYMMDDhhmmss format. April 29st 2021 09:30:00 will result in 20210429093000.
+          DATE=$(date '+%Y%m%d%H%M%S')
 
-          # Strip "v" prefix from tag name.
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          [ "$GITHUB_REF" == "refs/heads/main" ] && echo "::set-output name=hub::jaconi/hadoop:${{ matrix.hadoop }}-latest"
+          [ "$GITHUB_REF" == "refs/heads/main" ] && echo "::set-output name=ghcr::ghcr.io/${{ github.repository }}:${{ matrix.hadoop }}-latest"
 
-          # Use Docker `latest` tag convention.
-          [ "$VERSION" == "main" ] && VERSION=latest
-
-          echo "::set-output name=hub::jaconi/hadoop:$VERSION-hadoop${{ matrix.hadoop }}"
-          echo "::set-output name=ghcr::ghcr.io/${{ github.repository }}:$VERSION-hadoop${{ matrix.hadoop }}"
+          echo "::set-output name=hub::jaconi/hadoop:${{ matrix.hadoop }}-$DATE"
+          echo "::set-output name=ghcr::ghcr.io/${{ github.repository }}:${{ matrix.hadoop }}-$DATE"
 
       - uses: docker/build-push-action@v2
         with:
           build-args: HADOOP_VERSION=${{ matrix.hadoop }}
           push: true
-          tags: |
-            ${{ steps.tags.outputs.hub }}
-            ${{ steps.tags.outputs.ghcr }}
+          tags: ${{ join(steps.tags.outputs.*, '\n') }}
