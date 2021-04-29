@@ -33,7 +33,7 @@ jobs:
   # Push image to Docker Hub and GitHub Container Registry.
   push:
     # Ensure test job passes before pushing image.
-    # needs: test
+    needs: test
 
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
