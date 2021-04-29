@@ -16,26 +16,26 @@ on:
 jobs:
   # Run tests.
   # See also https://docs.docker.com/docker-hub/builds/automated-testing/
-  test:
-    runs-on: ubuntu-latest
+  # test:
+  #   runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        hadoop: [2.10.1, 3.1.4, 3.2.2, 3.3.0]
+  #   strategy:
+  #     matrix:
+  #       hadoop: [2.10.1, 3.1.4, 3.2.2, 3.3.0]
 
-    steps:
-      - uses: actions/checkout@v2
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: Run tests
-        run: |
-          docker-compose --file docker-compose.test.yml build --build-arg HADOOP_VERSION=${{ matrix.hadoop }}
-          docker-compose --file docker-compose.test.yml run sut
+  #     - name: Run tests
+  #       run: |
+  #         docker-compose --file docker-compose.test.yml build --build-arg HADOOP_VERSION=${{ matrix.hadoop }}
+  #         docker-compose --file docker-compose.test.yml run sut
 
   # Push image to Docker Hub and GitHub Container Registry.
   # See also https://docs.docker.com/docker-hub/builds/
   push:
     # Ensure test job passes before pushing image.
-    needs: test
+    # needs: test
 
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
@@ -66,8 +66,8 @@ jobs:
           # Get date in YYYYMMDDhhmmss format. April 29st 2021 09:30:00 will result in 20210429093000.
           DATE=$(date '+%Y%m%d%H%M%S')
 
-          [ "$GITHUB_REF" == "refs/heads/main" ] && echo "::set-output name=hub::jaconi/hadoop:${{ matrix.hadoop }}-latest"
-          [ "$GITHUB_REF" == "refs/heads/main" ] && echo "::set-output name=ghcr::ghcr.io/${{ github.repository }}:${{ matrix.hadoop }}-latest"
+          [ "$GITHUB_REF" == "refs/heads/main" ] && echo "::set-output name=hub-latest::jaconi/hadoop:${{ matrix.hadoop }}-latest"
+          [ "$GITHUB_REF" == "refs/heads/main" ] && echo "::set-output name=ghcr-latest::ghcr.io/${{ github.repository }}:${{ matrix.hadoop }}-latest"
 
           echo "::set-output name=hub::jaconi/hadoop:${{ matrix.hadoop }}-$DATE"
           echo "::set-output name=ghcr::ghcr.io/${{ github.repository }}:${{ matrix.hadoop }}-$DATE"
@@ -76,4 +76,4 @@ jobs:
         with:
           build-args: HADOOP_VERSION=${{ matrix.hadoop }}
           push: true
-          tags: ${{ join(steps.tags.outputs.*, '\n') }}
+          tags: ${{ join(steps.tags.outputs.*, ',') }}
