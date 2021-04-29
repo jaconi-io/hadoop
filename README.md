@@ -17,3 +17,12 @@ Hadoop in this container.
 If you want to set, for example, `fs.defaultFS` in `core-site.xml` you would set the environment variable
 `FS_DEFAULTFS` instead. This even works for dynamic properties like `ipc.8020.callqueue.impl`. Just set
 `IPC_8020_CALLQUEUE_IMPL`.
+
+## Testing
+
+To test your changes, run
+
+```
+docker compose build
+docker compose run sut
+```
