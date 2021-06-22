@@ -36,6 +36,12 @@ COPY --from=builder /hdfs-site.xml.tmpl /opt/hadoop/etc/hadoop/hdfs-site.xml.tmp
 COPY --from=builder /yarn-site.xml.tmpl /opt/hadoop/etc/hadoop/yarn-site.xml.tmpl
 COPY --from=builder /mapred-site.xml.tmpl /opt/hadoop/etc/hadoop/mapred-site.xml.tmpl
 
+# Setup non-root user.
+RUN addgroup --system --gid 10001 hadoop \
+ && adduser --system --uid 10001 --ingroup hadoop hadoop \
+ && chown -R hadoop:hadoop /opt/hadoop
+USER hadoop
+
 ENTRYPOINT [ "dockerize", \
   "-template", "/opt/hadoop/etc/hadoop/core-site.xml.tmpl:/opt/hadoop/etc/hadoop/core-site.xml", \
   "-template", "/opt/hadoop/etc/hadoop/hdfs-site.xml.tmpl:/opt/hadoop/etc/hadoop/hdfs-site.xml", \
