@@ -38,9 +38,16 @@ COPY --from=builder /mapred-site.xml.tmpl /opt/hadoop/etc/hadoop/mapred-site.xml
 
 # Setup non-root user.
 RUN addgroup --system --gid 10001 hdfs \
- && adduser --system --uid 10001 --ingroup hdfs hdfs \
- && chown -R hdfs:hdfs /opt/hadoop
+ && adduser --system --no-create-home --uid 10001 --ingroup hdfs hdfs \
+ && chown -R hdfs:hdfs /opt/hadoop \
+ && mkdir -p /tmp/hadoop-hdfs/dfs/data \
+ && mkdir -p /tmp/hadoop-hdfs/dfs/name \
+ && chown -R hdfs:hdfs /tmp/hadoop-hdfs/dfs/data \
+ && chown -R hdfs:hdfs /tmp/hadoop-hdfs/dfs/name
 USER hdfs
+
+VOLUME /tmp/hadoop-hdfs/dfs/data
+VOLUME /tmp/hadoop-hdfs/dfs/name
 
 ENTRYPOINT [ "dockerize", \
   "-template", "/opt/hadoop/etc/hadoop/core-site.xml.tmpl:/opt/hadoop/etc/hadoop/core-site.xml", \

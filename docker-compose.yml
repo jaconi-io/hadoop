@@ -20,7 +20,7 @@ services:
     depends_on:
       - namenode-format
     volumes:
-      - namenode:/tmp/hadoop-root/dfs/name
+      - namenode:/tmp/hadoop-hdfs/dfs/name
 
   namenode-format:
     build: .
@@ -28,7 +28,7 @@ services:
     environment:
       FS_DEFAULTFS: hdfs://namenode:9000
     volumes:
-      - namenode:/tmp/hadoop-root/dfs/name
+      - namenode:/tmp/hadoop-hdfs/dfs/name
 
   datanode1:
     build: .
@@ -36,7 +36,7 @@ services:
     environment:
       FS_DEFAULTFS: hdfs://namenode:9000
     volumes:
-      - datanode1:/tmp/hadoop-root/dfs/name
+      - datanode1:/tmp/hadoop-hdfs/dfs/data
 
   datanode2:
     build: .
@@ -44,7 +44,7 @@ services:
     environment:
       FS_DEFAULTFS: hdfs://namenode:9000
     volumes:
-      - datanode2:/tmp/hadoop-root/dfs/name
+      - datanode2:/tmp/hadoop-hdfs/dfs/data
 
 volumes:
   namenode:
