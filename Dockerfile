@@ -44,14 +44,26 @@ RUN addgroup --system --gid 10001 hdfs \
  && mkdir -p /tmp/hadoop-hdfs/dfs/name \
  && chown -R hdfs:hdfs /tmp/hadoop-hdfs/dfs/data \
  && chown -R hdfs:hdfs /tmp/hadoop-hdfs/dfs/name
+
+# Link /opt/hadoop/etc/hadoop/*-site.xml to /etc/hadoop, such that /etc/hadoop can be mounted as a volume without
+# overwriting other configuration files in /opt/hadoop/etc/hadoop. This is required when using a read-only root
+# filesystem.
+RUN mkdir -p /etc/hadoop \
+ && ln -sf /etc/hadoop/core-site.xml /opt/hadoop/etc/hadoop/core-site.xml \
+ && ln -sf /etc/hadoop/hdfs-site.xml /opt/hadoop/etc/hadoop/hdfs-site.xml \
+ && ln -sf /etc/hadoop/yarn-site.xml /opt/hadoop/etc/hadoop/yarn-site.xml \
+ && ln -sf /etc/hadoop/mapred-site.xml /opt/hadoop/etc/hadoop/mapred-site.xml \
+ && chown -R hdfs:hdfs /etc/hadoop
+
 USER hdfs
 
+VOLUME /etc/hadoop
 VOLUME /tmp/hadoop-hdfs/dfs/data
 VOLUME /tmp/hadoop-hdfs/dfs/name
 
 ENTRYPOINT [ "dockerize", \
-  "-template", "/opt/hadoop/etc/hadoop/core-site.xml.tmpl:/opt/hadoop/etc/hadoop/core-site.xml", \
-  "-template", "/opt/hadoop/etc/hadoop/hdfs-site.xml.tmpl:/opt/hadoop/etc/hadoop/hdfs-site.xml", \
-  "-template", "/opt/hadoop/etc/hadoop/yarn-site.xml.tmpl:/opt/hadoop/etc/hadoop/yarn-site.xml", \
-  "-template", "/opt/hadoop/etc/hadoop/mapred-site.xml.tmpl:/opt/hadoop/etc/hadoop/mapred-site.xml" ]
+  "-template", "/opt/hadoop/etc/hadoop/core-site.xml.tmpl:/etc/hadoop/core-site.xml", \
+  "-template", "/opt/hadoop/etc/hadoop/hdfs-site.xml.tmpl:/etc/hadoop/hdfs-site.xml", \
+  "-template", "/opt/hadoop/etc/hadoop/yarn-site.xml.tmpl:/etc/hadoop/yarn-site.xml", \
+  "-template", "/opt/hadoop/etc/hadoop/mapred-site.xml.tmpl:/etc/hadoop/mapred-site.xml" ]
 CMD [ "hdfs", "--help" ]
